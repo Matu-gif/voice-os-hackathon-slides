@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice OS 活用アイデア提案</title>
+    <style>
+        /* ===== 基本スタイル ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+            background: #f5f5f5;
+            overflow: hidden;
+        }
+
+        .slide-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .slide {
+            width: 1280px;
+            height: 720px;
+            background: white;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 50px 70px 70px 70px;
+            display: none;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        /* ===== カラーパレット（白70%、青25%、オレンジ5%） ===== */
+        :root {
+            --primary-blue: #2196F3;
+            --primary-orange: #FF9800;
+            --text-dark: #333;
+            --text-light: #666;
+            --bg-white: #ffffff;
+            --bg-light-blue: #E3F2FD;
+        }
+
+        /* ===== タイポグラフィ ===== */
+        h1 {
+            font-size: 56px;
+            color: var(--primary-blue);
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        h2 {
+            font-size: 38px;
+            color: var(--primary-blue);
+            margin-bottom: 25px;
+            font-weight: 600;
+            border-bottom: 4px solid var(--primary-orange);
+            padding-bottom: 8px;
+            display: inline-block;
+            max-width: 100%;
+        }
+
+        h3 {
+            font-size: 24px;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        p {
+            font-size: 22px;
+            color: var(--text-light);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .subtitle {
+            font-size: 28px;
+            color: var(--text-light);
+            margin-bottom: 40px;
+        }
+
+        /* ===== スライドナビゲーション ===== */
+        .slide-number {
+            position: absolute;
+            bottom: 30px;
+            right: 40px;
+            font-size: 18px;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .nav-hint {
+            position: absolute;
+            bottom: 30px;
+            left: 40px;
+            font-size: 16px;
+            color: var(--text-light);
+            opacity: 0.7;
+        }
+
+        /* ===== タイトルスライド（スライド1） ===== */
+        .title-slide {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, var(--bg-light-blue) 0%, white 100%);
+        }
+
+        .title-slide h1 {
+            font-size: 64px;
+            margin-bottom: 30px;
+        }
+
+        .title-slide .subtitle {
+            font-size: 32px;
+            color: var(--primary-blue);
+        }
+
+        .title-slide .date {
+            font-size: 20px;
+            color: var(--text-light);
+            margin-top: 40px;
+        }
+
+        /* ===== 概要スライド（スライド2, 4） ===== */
+        .feature-box {
+            background: var(--bg-light-blue);
+            border-left: 6px solid var(--primary-blue);
+            padding: 25px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+
+        .feature-box h3 {
+            margin-bottom: 12px;
+            color: var(--primary-blue);
+        }
+
+        .feature-box p {
+            font-size: 22px;
+            color: var(--text-dark);
+            font-weight: 500;
+            line-height: 1.5;
+            margin-bottom: 0;
+        }
+
+        .problem-list {
+            list-style: none;
+            margin: 15px 0;
+        }
+
+        .problem-list li {
+            font-size: 20px;
+            color: var(--text-dark);
+            padding: 10px 18px;
+            margin-bottom: 10px;
+            background: white;
+            border-left: 4px solid var(--primary-orange);
+            border-radius: 4px;
+        }
+
+        .problem-list li::before {
+            content: "❌ ";
+            margin-right: 10px;
+        }
+
+        .benefit-list {
+            list-style: none;
+            margin: 15px 0;
+        }
+
+        .benefit-list li {
+            font-size: 20px;
+            color: var(--text-dark);
+            padding: 10px 18px;
+            margin-bottom: 10px;
+            background: white;
+            border-left: 4px solid var(--primary-blue);
+            border-radius: 4px;
+        }
+
+        .benefit-list li::before {
+            content: "✅ ";
+            margin-right: 10px;
+        }
+
+        /* ===== フローチャートスライド（スライド3, 5） ===== */
+        .flow-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+            overflow-y: auto;
+            max-height: 550px;
+            padding-right: 10px;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: center;
+            background: white;
+            border: 2px solid var(--primary-blue);
+            border-radius: 10px;
+            padding: 15px 20px;
+            position: relative;
+            transition: all 0.3s ease;
+            min-height: 80px;
+        }
+
+        .flow-step:hover {
+            transform: translateX(10px);
+            box-shadow: 0 4px 20px rgba(33, 150, 243, 0.3);
+        }
+
+        .flow-step.highlight {
+            background: var(--bg-light-blue);
+            border-color: var(--primary-orange);
+        }
+
+        .flow-icon {
+            font-size: 32px;
+            margin-right: 18px;
+            min-width: 45px;
+            text-align: center;
+        }
+
+        .flow-content {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .flow-content .step-number {
+            font-size: 14px;
+            color: var(--primary-blue);
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .flow-content .step-title {
+            font-size: 20px;
+            color: var(--text-dark);
+            font-weight: 600;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .flow-content .step-desc {
+            font-size: 16px;
+            color: var(--text-light);
+            line-height: 1.4;
+        }
+
+        .flow-arrow {
+            text-align: center;
+            font-size: 24px;
+            color: var(--primary-blue);
+            margin: 3px 0;
+            line-height: 1;
+        }
+
+        /* ===== まとめスライド（スライド6） ===== */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-top: 25px;
+        }
+
+        .summary-card {
+            background: var(--bg-light-blue);
+            padding: 25px;
+            border-radius: 12px;
+            border-top: 6px solid var(--primary-blue);
+        }
+
+        .summary-card h3 {
+            color: var(--primary-blue);
+            margin-bottom: 12px;
+            font-size: 24px;
+        }
+
+        .summary-card p {
+            font-size: 18px;
+            color: var(--text-dark);
+        }
+
+        .summary-highlight {
+            background: var(--primary-orange);
+            color: white;
+            padding: 20px 25px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 20px;
+            grid-column: 1 / -1;
+        }
+
+        .summary-highlight p {
+            font-size: 23px;
+            color: white;
+            font-weight: 600;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        /* ===== コンパクトフロー用 ===== */
+        .compact-flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: var(--bg-light-blue);
+            border-radius: 12px;
+        }
+
+        .compact-step {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+        }
+
+        .compact-step .icon {
+            font-size: 42px;
+            margin-bottom: 10px;
+        }
+
+        .compact-step .label {
+            font-size: 18px;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        .compact-arrow {
+            font-size: 32px;
+            color: var(--primary-blue);
+            margin: 0 10px;
+        }
+
+        /* ===== スクロールバーのスタイリング ===== */
+        .flow-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .flow-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .flow-container::-webkit-scrollbar-thumb {
+            background: var(--primary-blue);
+            border-radius: 10px;
+        }
+
+        /* ===== レスポンシブ調整 ===== */
+        @media (max-width: 1366px) {
+            .slide {
+                width: 90vw;
+                height: calc(90vw * 9 / 16);
+                padding: 40px 50px;
+            }
+
+            h1 { font-size: 44px; }
+            h2 { font-size: 32px; }
+            h3 { font-size: 22px; }
+            p { font-size: 18px; }
+            
+            .flow-content .step-title { font-size: 18px; }
+            .flow-content .step-desc { font-size: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- スライド1: タイトル -->
+        <div class="slide active title-slide">
+            <h1>🎤 Voice OS 活用アイデア提案</h1>
+            <p class="subtitle">音声コマンドで複雑な作業を一言で完結</p>
+            <p class="date">Voice OS Hackathon | 2026年4月3日</p>
+            <div class="slide-number">1 / 6</div>
+            <div class="nav-hint">矢印キー or スペースキーで次へ</div>
+        </div>
+
+        <!-- スライド2: アイデア1 概要 -->
+        <div class="slide">
+            <h2>💬 アイデア1: 音声コマンド式 電話予約ツール</h2>
+            
+            <h3>❌ 解決する課題</h3>
+            <ul class="problem-list">
+                <li>予約の電話をかけるのが面倒</li>
+                <li>友人との予定共有に手間がかかる</li>
+                <li>予約後にグループLINEで報告するのを忘れる</li>
+            </ul>
+
+            <div class="feature-box">
+                <h3>💡 機能</h3>
+                <p>「〇〇を予約して」と一言言うだけで、<br>
+                AIが自動で電話予約を完了し、<br>
+                結果をLINEグループに送信</p>
+            </div>
+
+            <div class="slide-number">2 / 6</div>
+            <div class="nav-hint">← →で移動</div>
+        </div>
+
+        <!-- スライド3: アイデア1 フロー -->
+        <div class="slide">
+            <h2>🔄 電話予約ツールのフロー</h2>
+            
+            <div class="flow-container">
+                <div class="flow-step highlight">
+                    <div class="flow-icon">🎤</div>
+                    <div class="flow-content">
+                        <div class="step-number">STEP 1</div>
+                        <div class="step-title">音声コマンド</div>
+                        <div class="step-desc">「〇〇を予約して」と発話</div>
+                    </div>
+                </div>
+
+                <div class="flow-arrow">↓</div>
+
+                <div class="flow-step">
+                    <div class="flow-icon">🔍</div>
+                    <div class="flow-content">
+                        <div class="step-number">STEP 2</div>
+                        <div class="step-title">予約先情報の検索</div>
+                        <div class="step-desc">電話番号や営業時間を自動取得</div>
+                    </div>
+                </div>
+
+                <div class="flow-arrow">↓</div>
+
+                <div class="flow-step">
+                    <div class="flow-icon">📞</div>
+                    <div class="flow-content">
+                        <div class="step-number">STEP 3</div>
+                        <div class="step-title">AIエージェントが電話</div>
+                        <div class="step-desc">AIが店舗と会話し、予約内容を伝達</div>
+                    </div>
+                </div>
+
+                <div class="flow-arrow">↓</div>
+
+                <div class="flow-step highlight">
+                    <div class="flow-icon">📨</div>
+                    <div class="flow-content">
+                        <div class="step-number">STEP 4</div>
+                        <div class="step-title">LINEグループに自動送信</div>
+                        <div class="step-desc">予約完了の詳細を友人に共有</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide-number">3 / 6</div>
+            <div class="nav-hint">← →で移動</div>
+        </div>
+
+        <!-- スライド4: アイデア2 概要 -->
+        <div class="slide">
+            <h2>📚 アイデア2: 画面認識式 単語帳自動貼り付け機能</h2>
+            
+            <h3>❌ 解決する課題</h3>
+            <ul class="problem-list">
+                <li>単語帳PDFからコピペする作業が面倒</li>
+                <li>学習ツール（Notion等）に転記する手間</li>
+                <li>マウス・キーボード操作で学習のテンポが悪い</li>
+            </ul>
+
+            <div class="feature-box">
+                <h3>💡 機能</h3>
+                <p>「ここをコピーしてNotionに貼り付けて」<br>
+                と音声で指示するだけで、<br>
+                画面上のテキストを自動コピー&貼り付け</p>
+            </div>
+
+            <div class="slide-number">4 / 6</div>
+            <div class="nav-hint">← →で移動</div>
+        </div>
+
+        <!-- スライド5: アイデア2 フロー -->
+        <div class="slide">
+            <h2>🔄 単語帳自動貼り付けのフロー</h2>
+            
+            <div class="flow-container">
+                <div class="flow-step highlight">
+                    <div class="flow-icon">🎤</div>
+                    <div class="flow-content">
+                        <div class="step-number">STEP 1</div>
+                        <div class="step-title">音声コマンド</div>
+                        <div class="step-desc">「ここをコピーしてNotionに貼り付けて」</div>
+                    </div>
+                </div>
+
+                <div class="flow-arrow">↓</div>
+
+                <div class="flow-step">
+                    <div class="flow-icon">👁️</div>
+                    <div class="flow-content">
+                        <div class="step-number">STEP 2</div>
+                        <div class="step-title">画面認識 & OCR</div>
+                        <div class="step-desc">画面をキャプチャし、指示箇所を特定</div>
+                    </div>
+                </div>
+
+                <div class="flow-arrow">↓</div>
+
+                <div class="flow-step">
+                    <div class="flow-icon">📋</div>
+                    <div class="flow-content">
+                        <div class="step-number">STEP 3</div>
+                        <div class="step-title">テキスト抽出</div>
+                        <div class="step-desc">該当テキストを自動コピー</div>
+                    </div>
+                </div>
+
+                <div class="flow-arrow">↓</div>
+
+                <div class="flow-step highlight">
+                    <div class="flow-icon">📝</div>
+                    <div class="flow-content">
+                        <div class="step-number">STEP 4</div>
+                        <div class="step-title">Notionに自動貼り付け</div>
+                        <div class="step-desc">指定アプリを開き、自動ペースト実行</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide-number">5 / 6</div>
+            <div class="nav-hint">← →で移動</div>
+        </div>
+
+        <!-- スライド6: まとめ -->
+        <div class="slide">
+            <h2>✨ まとめ: Voice OSの可能性を広げる</h2>
+            
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <h3>📞 電話予約ツール</h3>
+                    <ul class="benefit-list">
+                        <li>予約の手間がゼロに</li>
+                        <li>グループ共有が自動化</li>
+                        <li>時間の大幅節約</li>
+                    </ul>
+                </div>
+
+                <div class="summary-card">
+                    <h3>📚 単語帳機能</h3>
+                    <ul class="benefit-list">
+                        <li>学習効率の大幅向上</li>
+                        <li>ハンズフリー学習</li>
+                        <li>集中力を維持</li>
+                    </ul>
+                </div>
+
+                <div class="summary-highlight">
+                    <p>🎯 面倒な作業を音声コマンド1回で完結<br>
+                    Voice OSの「音声で全てをコントロール」という強みを最大限に活用</p>
+                </div>
+            </div>
+
+            <div class="slide-number">6 / 6</div>
+            <div class="nav-hint">← →で移動</div>
+        </div>
+    </div>
+
+    <script>
+        // スライドナビゲーション
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function prevSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        // キーボードナビゲーション
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevSlide();
+            }
+        });
+
+        // クリックナビゲーション
+        document.addEventListener('click', (e) => {
+            const rect = document.querySelector('.slide-container').getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            if (clickX > rect.width / 2) {
+                nextSlide();
+            } else {
+                prevSlide();
+            }
+        });
+
+        // タッチナビゲーション（スワイプ）
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) {
+                nextSlide();
+            } else if (touchEndX > touchStartX + 50) {
+                prevSlide();
+            }
+        }
+    </script>
+</body>
+</html>
